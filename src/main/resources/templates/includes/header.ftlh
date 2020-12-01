@@ -24,7 +24,7 @@
                 </div>
                 <div id="title" class="col-md-10">
                     <h1 class="app-name brand mb-0">
-                        <a href="<@spring.url '/'/>">Kafdrop</a>
+                        <a href="<@spring.url '/overview'/>">Kafdrop</a>
                     </h1>
                 </div>
                 <div id="github-star" class="col-md-1">
