@@ -36,6 +36,8 @@ management:
 kafdrop.monitor:
   clientId: Kafdrop
 
+aes.key.file.path: /certs/msgkey
+
 kafka:
   brokerConnect: localhost:9092
   saslMechanism: "PLAIN"

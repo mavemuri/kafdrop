@@ -28,8 +28,12 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import kafdrop.config.AESGCMConfiguration;
+import kafdrop.config.MessageFormatConfiguration;
 import kafdrop.config.MessageFormatConfiguration.MessageFormatProperties;
 import kafdrop.config.ProtobufDescriptorConfiguration.ProtobufDescriptorProperties;
+import kafdrop.config.SchemaRegistryConfiguration;
+import kafdrop.config.AESGCMConfiguration.AESGCMProperties;
 import kafdrop.config.SchemaRegistryConfiguration.SchemaRegistryProperties;
 import kafdrop.form.SearchMessageForm;
 import kafdrop.model.MessageVO;
@@ -38,6 +42,7 @@ import kafdrop.model.TopicVO;
 import kafdrop.service.KafkaMonitor;
 import kafdrop.service.MessageInspector;
 import kafdrop.service.TopicNotFoundException;
+import kafdrop.util.AESGCMMessageDeserializer;
 import kafdrop.util.AvroMessageDeserializer;
 import kafdrop.util.DefaultMessageDeserializer;
 import kafdrop.util.Deserializers;
@@ -76,15 +81,15 @@ public final class MessageController {
 
   private final ProtobufDescriptorProperties protobufProperties;
 
-  public MessageController(KafkaMonitor kafkaMonitor, MessageInspector messageInspector,
-                           MessageFormatProperties messageFormatProperties,
-                           SchemaRegistryProperties schemaRegistryProperties,
-                           ProtobufDescriptorProperties protobufProperties) {
+  private final AESGCMConfiguration.AESGCMProperties aesgcmProperties;
+
+  public MessageController(KafkaMonitor kafkaMonitor, MessageInspector messageInspector, MessageFormatProperties messageFormatProperties, SchemaRegistryProperties schemaRegistryProperties, ProtobufDescriptorProperties protobufProperties, AESGCMProperties aesgcmProperties) {
     this.kafkaMonitor = kafkaMonitor;
     this.messageInspector = messageInspector;
     this.messageFormatProperties = messageFormatProperties;
     this.schemaRegistryProperties = schemaRegistryProperties;
-    this.protobufProperties = protobufProperties;
+    this.protobufProperties = protobufProperties; 
+    this.aesgcmProperties = aesgcmProperties;
   }
 
   /**
@@ -271,6 +276,8 @@ public final class MessageController {
       return MessageFormat.PROTOBUF;
     } else if ("MSGPACK".equalsIgnoreCase(format)) {
       return MessageFormat.MSGPACK;
+    } else if ("AESGCM".equalsIgnoreCase(format)) {
+      return MessageFormat.AESGCM;
     } else {
       return MessageFormat.DEFAULT;
     }
@@ -360,6 +367,8 @@ public final class MessageController {
       deserializer = new ProtobufSchemaRegistryMessageDeserializer(topicName, schemaRegistryUrl, schemaRegistryAuth);
     } else if (format == MessageFormat.MSGPACK) {
       deserializer = new MsgPackMessageDeserializer();
+    } else if (format == MessageFormat.AESGCM) {
+      deserializer = new AESGCMMessageDeserializer(aesgcmProperties.getKeyFilePath());
     } else {
       deserializer = new DefaultMessageDeserializer();
     }
