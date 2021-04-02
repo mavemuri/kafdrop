@@ -38,9 +38,13 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.header.Headers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -315,17 +319,14 @@ public final class KafkaMonitorImpl implements KafkaMonitor {
   }
 
   @Override
-  public List<AclVO> getAcls() {
-    final var acls = highLevelAdminClient.listAcls();
-    final var aclVos = new ArrayList<AclVO>(acls.size());
-    for (var acl : acls) {
-      aclVos.add(new AclVO(acl.pattern().resourceType().toString(), acl.pattern().name(),
-        acl.pattern().patternType().toString(), acl.entry().principal(),
-        acl.entry().host(), acl.entry().operation().toString(),
-        acl.entry().permissionType().toString()));
+  public List<AclVO> getAcls(String kafkaProxyURL, String kafkaProxyCookiePath) {
+    HttpHeaders headers= new HttpHeaders();
+    if(kafkaProxyCookiePath.length()!=0) {
+      // handle for APIC
     }
-    Collections.sort(aclVos);
-    return aclVos;
+    RestTemplate restTemplate= new RestTemplate();
+    ResponseEntity<AclVO[]> responseEntity= restTemplate.getForEntity(kafkaProxyURL+"/acls", AclVO[].class);
+    return Arrays.asList(responseEntity.getBody());
   }
 
   private static List<ConsumerVO> convert(List<ConsumerGroupOffsets> consumerGroupOffsets,

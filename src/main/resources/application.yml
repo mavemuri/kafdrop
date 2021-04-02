@@ -45,3 +45,8 @@ kafka:
   truststoreFile: "${KAFKA_TRUSTSTORE_FILE:kafka.truststore.jks}"
   propertiesFile : "${KAFKA_PROPERTIES_FILE:kafka.properties}"
   keystoreFile: "${KAFKA_KEYSTORE_FILE:kafka.keystore.jks}"
+
+kafkaproxy:
+  useCookie: false
+  cookiePath: my.cookie
+  URL: http://localhost:9003
