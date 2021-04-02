@@ -23,6 +23,7 @@ import kafdrop.model.BrokerVO;
 import kafdrop.model.ClusterSummaryVO;
 import kafdrop.model.ConsumerVO;
 import kafdrop.model.CreateTopicVO;
+import kafdrop.model.KafkaQuotaVO;
 import kafdrop.model.MessageVO;
 import kafdrop.model.SearchResultsVO;
 import kafdrop.model.TopicVO;
@@ -79,4 +80,6 @@ public interface KafkaMonitor {
   void deleteTopic(String topic);
 
   List<AclVO> getAcls(String kafkaProxyURL, String kafkaProxyCookiePath);
+
+  List<KafkaQuotaVO> getQuotas(String kafkaProxyURL, String kafkaProxyCookiePath);
 }

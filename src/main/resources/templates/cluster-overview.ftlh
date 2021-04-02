@@ -99,7 +99,7 @@
     </div>
 
     <div id="topics">
-        <h3><i class="fa fa-database"></i> Topics&nbsp;&nbsp;&nbsp;<a href="<@spring.url '/acl'/>"><i class="fa fa-lock"></i> ACLs</a></h3>
+        <h3><i class="fa fa-database"></i> Topics&nbsp;&nbsp;&nbsp;<a href="<@spring.url '/acl'/>"><i class="fa fa-lock"></i> ACLs</a>&nbsp;&nbsp;&nbsp;<a href="<@spring.url '/quotas'/>"><i class="fa fa-list"></i> Quotas</a></h3>
         <table class="table table-bordered">
             <thead>
             <tr>

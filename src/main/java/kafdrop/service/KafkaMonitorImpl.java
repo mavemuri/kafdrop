@@ -25,6 +25,7 @@ import kafdrop.model.ConsumerPartitionVO;
 import kafdrop.model.ConsumerTopicVO;
 import kafdrop.model.ConsumerVO;
 import kafdrop.model.CreateTopicVO;
+import kafdrop.model.KafkaQuotaVO;
 import kafdrop.model.MessageVO;
 import kafdrop.model.SearchResultsVO;
 import kafdrop.model.TopicPartitionVO;
@@ -329,8 +330,18 @@ public final class KafkaMonitorImpl implements KafkaMonitor {
     return Arrays.asList(responseEntity.getBody());
   }
 
-  private static List<ConsumerVO> convert(List<ConsumerGroupOffsets> consumerGroupOffsets,
-                                          Collection<TopicVO> topicVos) {
+  @Override
+  public List<KafkaQuotaVO> getQuotas(String kafkaProxyURL, String kafkaProxyCookiePath) {
+    HttpHeaders headers= new HttpHeaders();
+    if(kafkaProxyCookiePath.length()!=0) {
+      // handle for APIC
+    }
+    RestTemplate restTemplate= new RestTemplate();
+    ResponseEntity<KafkaQuotaVO[]> responseEntity= restTemplate.getForEntity(kafkaProxyURL+"/quotas", KafkaQuotaVO[].class);
+    return Arrays.asList(responseEntity.getBody());
+  }
+
+  private static List<ConsumerVO> convert(List<ConsumerGroupOffsets> consumerGroupOffsets, Collection<TopicVO> topicVos) {
     final var topicVoMap = topicVos.stream().collect(Collectors.toMap(TopicVO::getName, Function.identity()));
     final var groupTopicPartitionOffsetMap = new TreeMap<String, Map<String, Map<Integer, Long>>>();
 
