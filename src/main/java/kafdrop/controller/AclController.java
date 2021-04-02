@@ -23,6 +23,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import kafdrop.model.AclVO;
 import kafdrop.service.KafkaMonitor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -36,13 +37,22 @@ import java.util.List;
 public final class AclController {
   private final KafkaMonitor kafkaMonitor;
 
+  @Value("${kafkaproxy.URL}")
+  String kafkaProxyURL;
+
+  @Value("${kafkaproxy.cookiePath}")
+  String kafkaProxyCookiePath;
+
+  @Value("${kafkaproxy.useCookie}")
+  Boolean useCookie;
+
   public AclController(KafkaMonitor kafkaMonitor) {
     this.kafkaMonitor = kafkaMonitor;
   }
 
   @RequestMapping("/acl")
   public String acls(Model model) {
-    final var acls = kafkaMonitor.getAcls();
+    final var acls = kafkaMonitor.getAcls(kafkaProxyURL, useCookie? kafkaProxyCookiePath: "");
     model.addAttribute("acls", acls);
 
     return "acl-overview";
@@ -54,6 +64,6 @@ public final class AclController {
   })
   @GetMapping(path = "/acl", produces = MediaType.APPLICATION_JSON_VALUE)
   public @ResponseBody List<AclVO> getAllTopics() {
-    return kafkaMonitor.getAcls();
+    return kafkaMonitor.getAcls(kafkaProxyURL, useCookie? kafkaProxyCookiePath: "");
   }
 }

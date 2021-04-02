@@ -38,25 +38,19 @@
     <table class="table table-bordered">
         <thead>
         <tr>
-            <th><i class="fa fa-tag"></i>&nbsp;&nbsp;Pattern Name</th>
-            <th><i class="fa fa-user"></i>&nbsp;&nbsp;Principal</th>
-            <th><i class="fa fa-user"></i>&nbsp;&nbsp;Resource Type</th>
-            <th><i class="fa fa-tag"></i>&nbsp;&nbsp;Pattern Type</th>
+            <th><i class="fa fa-tag"></i>&nbsp;&nbsp;Name</th>
+            <th><i class="fa fa-user"></i>&nbsp;&nbsp;DN</th>
+            <th><i class="fa fa-database"></i>&nbsp;&nbsp;Topic</th>
             <th><i class="fa fa-tag"></i>&nbsp;&nbsp;Operation</th>
-            <th><i class="fa fa-server"></i>&nbsp;&nbsp;Host</th>
-            <th><i class="fa fa-tag"></i>&nbsp;&nbsp;Permission Type</th>
         </tr>
         </thead>
         <tbody>
-        <#list acls as a>
+        <#list acls?sort_by("name", "dn", "topic", "op") as a>
             <tr class="dataRow">
                 <td>${a.name}</td>
-                <td>${a.principal}</td>
-                <td>${a.resourceType}</td>
-                <td>${a.patternType}</td>
-                <td>${a.operation}</td>
-                <td>${a.host}</td>
-                <td>${a.permissionType}</td>
+                <td>${a.dn}</td>
+                <td>${a.topic}</td>
+                <td>${a.op}</td>
             </tr>
         </#list>
         </tbody>
