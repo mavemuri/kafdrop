@@ -19,51 +19,37 @@
 package kafdrop.model;
 
 public final class AclVO implements Comparable<AclVO>{
-    private final String name;
-    private final String resourceType;
-    private final String patternType;
 
-    private final String principal;
-    private final String host;
-    private final String operation;
-    private final String permissionType;
+    private String name;
+    private String dn;
+    private String topic;
+    private String op;
 
-    public AclVO(String resourceType, String name, String patternType, String principal, String host, String operation, String permissionType) {
-        this.resourceType = resourceType;
-        this.name = name;
-        this.patternType = patternType;
-        this.principal = principal;
-        this.host = host;
-        this.operation = operation;
-        this.permissionType = permissionType;
+    public AclVO() {
+
+    }
+
+    public AclVO(String dn, String name, String op, String topic) {
+        this.name= name;
+        this.dn= dn;
+        this.topic= topic;
+        this.op= op;
+    }
+
+    public String getTopic() {
+        return topic;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getResourceType() {
-        return resourceType;
+    public String getDn() {
+        return dn;
     }
 
-    public String getPatternType() {
-        return patternType;
-    }
-
-    public String getPrincipal() {
-        return principal;
-    }
-
-    public String getHost() {
-        return host;
-    }
-
-    public String getOperation() {
-        return operation;
-    }
-
-    public String getPermissionType() {
-        return permissionType;
+    public String getOp() {
+        return op;
     }
 
     @Override
