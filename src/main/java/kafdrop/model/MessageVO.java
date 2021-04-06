@@ -87,4 +87,9 @@ public final class MessageVO {
   public void setTimestamp(Date timestamp) {
     this.timestamp = timestamp;
   }
+
+  @Override
+  public String toString() {
+    return "{ \"Partition\": "+partition+", \"Offset\": "+offset+", \"Message\": \""+message.replace("\"", "\\\"").replace("\\\\\"", "\\\"")+"\", \"Key\": \""+key+"\", \"Headers\": \""+headers.toString()+"\", \"Timestamp\": \""+timestamp+"\" }";
+  }
 }
