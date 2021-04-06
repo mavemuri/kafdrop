@@ -18,7 +18,11 @@
 
 package kafdrop.controller;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -28,9 +32,16 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import com.google.common.net.HttpHeaders;
+import kafdrop.service.KafkaMonitorImpl;
 import kafdrop.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Repository;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -61,6 +72,9 @@ import kafdrop.service.TopicNotFoundException;
 
 @Controller
 public final class MessageController {
+
+  private static final Logger LOG = LoggerFactory.getLogger(MessageController.class);
+
   private final KafkaMonitor kafkaMonitor;
 
   private final MessageInspector messageInspector;
@@ -209,6 +223,34 @@ public final class MessageController {
 
 
 
+  @ApiOperation(value = "getMessages")
+  @ApiResponses(value = {
+          @ApiResponse(code = 200, message = "Success", response = ResponseEntity.class),
+          @ApiResponse(code = 404, message = "Invalid topic name")
+  })
+  @RequestMapping(method = RequestMethod.GET, value = "/topic/{name:.+}/messages", produces = MediaType.APPLICATION_JSON_VALUE, params="download")
+  public ResponseEntity<byte[]> getMessages(
+          @PathVariable("name") String topicName,
+          @RequestParam(name = "partition", required = false) Integer partition,
+          @RequestParam(name = "offset", required = false) Long offset,
+          @RequestParam(name = "count", required = false) Integer count,
+          @RequestParam(name = "format", required = false) String format,
+          @RequestParam(name = "keyFormat", required = false) String keyFormat,
+          @RequestParam(name = "descFile", required = false) String descFile,
+          @RequestParam(name = "msgTypeName", required = false) String msgTypeName
+  ) {
+    if(count>10000) {
+      return ResponseEntity.badRequest().body("Maximum number for download is 10000- please reduce count or change offset".getBytes());
+    }
+    try {
+      List<MessageVO> messagesList= (List<MessageVO>) (Object)getPartitionOrMessages(topicName, partition, offset, count, format, keyFormat, descFile, msgTypeName);
+      return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).
+              header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=%1$s-%2$s-messages.json", topicName, partition)).body(messagesList.toString().getBytes());
+    } catch (Exception e) {
+      e.printStackTrace();
+      return ResponseEntity.badRequest().body("Error processing- Please check input".getBytes());
+    }
+  }
   /**
    * Return a JSON list of all partition offset info for the given topic. If specific partition
    * and offset parameters are given, then this returns actual kafka messages from that partition

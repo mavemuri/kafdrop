@@ -162,6 +162,8 @@
         </div>
         &nbsp;&nbsp;
         <button id="viewMessagesBtn" class="btn btn-success" type="submit" ><i class="fa fa-search"></i> View Messages</button>
+        &nbsp;&nbsp;
+        <button id="downloadMessagesBtn" class="btn btn-success" type="submit" name="download" value="Download" ><i class="fa fa-download"></i> Download Messages</button>
     </form>
 </div>
 
