@@ -60,7 +60,7 @@ public interface KafkaMonitor {
    */
   void deleteTopic(String topic);
 
-  List<AclVO> getAcls(String kafkaProxyURL, String kafkaProxyCookiePath);
+  List<AclVO> getAcls(String kafkaProxyURL, String kafkaProxyCookie);
 
-  List<KafkaQuotaVO> getQuotas(String kafkaProxyURL, String kafkaProxyCookiePath);
+  List<KafkaQuotaVO> getQuotas(String kafkaProxyURL, String kafkaProxyCookie);
 }

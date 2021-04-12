@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import kafdrop.model.KafkaQuotaVO;
 import kafdrop.service.KafkaMonitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -13,11 +15,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 @Controller
 public class QuotaController {
     private final KafkaMonitor kafkaMonitor;
+    private static final Logger LOG= LoggerFactory.getLogger(QuotaController.class);
 
     @Value("${kafkaproxy.URL}")
     String kafkaProxyURL;
@@ -28,13 +35,27 @@ public class QuotaController {
     @Value("${kafkaproxy.useCookie}")
     Boolean useCookie;
 
+    String kafkaProxyCookie="";
+
     public QuotaController(KafkaMonitor kafkaMonitor) {
         this.kafkaMonitor = kafkaMonitor;
     }
 
+    @PostConstruct
+    public void init() {
+        if(this.useCookie) {
+            try {
+                this.kafkaProxyCookie= Files.readString(Path.of(this.kafkaProxyCookiePath)).replace('\n', ' ');
+            }
+            catch (IOException | SecurityException | OutOfMemoryError e) {
+                LOG.error(e.toString());
+            }
+        }
+    }
+
     @RequestMapping("/quotas")
     public String quotas(Model model) {
-        final var quotas = kafkaMonitor.getQuotas(kafkaProxyURL, useCookie? kafkaProxyCookiePath: "");
+        final var quotas = kafkaMonitor.getQuotas(kafkaProxyURL, kafkaProxyCookie);
         model.addAttribute("quotas", quotas);
 
         return "quota-overview";
@@ -47,6 +68,6 @@ public class QuotaController {
     @RequestMapping(path = "/quotas", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     public @ResponseBody
     List<KafkaQuotaVO> getAllQuotas() {
-        return kafkaMonitor.getQuotas(kafkaProxyURL, useCookie? kafkaProxyCookiePath: "");
+        return kafkaMonitor.getQuotas(kafkaProxyURL, kafkaProxyCookie);
     }
 }
