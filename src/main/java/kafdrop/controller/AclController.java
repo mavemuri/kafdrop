@@ -24,6 +24,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kafdrop.model.AclVO;
 import kafdrop.service.KafkaMonitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -32,12 +34,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 @Tag(name = "acl-controller", description = "ACL Controller")
 @Controller
 public final class AclController {
   private final KafkaMonitor kafkaMonitor;
+  private static final Logger LOG= LoggerFactory.getLogger(AclController.class);
 
   @Value("${kafkaproxy.URL}")
   String kafkaProxyURL;
@@ -48,13 +55,27 @@ public final class AclController {
   @Value("${kafkaproxy.useCookie}")
   Boolean useCookie;
 
+  String kafkaProxyCookie="";
+
   public AclController(KafkaMonitor kafkaMonitor) {
     this.kafkaMonitor = kafkaMonitor;
   }
 
+  @PostConstruct
+  public void init() {
+    if(this.useCookie) {
+      try {
+        this.kafkaProxyCookie= Files.readString(Path.of(this.kafkaProxyCookiePath)).replace('\n', ' ');
+      }
+      catch (IOException | SecurityException | OutOfMemoryError e) {
+        LOG.error(e.toString());
+      }
+    }
+  }
+
   @RequestMapping("/acl")
   public String acls(Model model) {
-    final var acls = kafkaMonitor.getAcls(kafkaProxyURL, useCookie? kafkaProxyCookiePath: "");
+    final var acls = kafkaMonitor.getAcls(kafkaProxyURL, kafkaProxyCookie);
     model.addAttribute("acls", acls);
     return "acl-overview";
   }
@@ -63,6 +84,6 @@ public final class AclController {
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Success")})
   @GetMapping(path = "/acl", produces = MediaType.APPLICATION_JSON_VALUE)
   public @ResponseBody List<AclVO> getAllTopics() {
-    return kafkaMonitor.getAcls(kafkaProxyURL, useCookie? kafkaProxyCookiePath: "");
+    return kafkaMonitor.getAcls(kafkaProxyURL, kafkaProxyCookie);
   }
 }

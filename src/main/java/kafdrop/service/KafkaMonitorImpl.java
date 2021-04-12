@@ -39,7 +39,9 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.header.Headers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -320,23 +322,29 @@ public final class KafkaMonitorImpl implements KafkaMonitor {
   }
 
   @Override
-  public List<AclVO> getAcls(String kafkaProxyURL, String kafkaProxyCookiePath) {
+  public List<AclVO> getAcls(String kafkaProxyURL, String kafkaProxyCookie) {
     HttpHeaders headers= new HttpHeaders();
-    if(kafkaProxyCookiePath.length()!=0) {
-      // handle for APIC
-    }
     RestTemplate restTemplate= new RestTemplate();
+    if(kafkaProxyCookie.length()!=0) {
+      headers.add("Cookie", "KafkaProxy-cookie="+kafkaProxyCookie);
+      HttpEntity httpEntity= new HttpEntity(headers);
+      ResponseEntity<AclVO[]> responseEntity= restTemplate.exchange(kafkaProxyURL+"/acls", HttpMethod.GET, httpEntity, AclVO[].class);
+      return Arrays.asList(responseEntity.getBody());
+    }
     ResponseEntity<AclVO[]> responseEntity= restTemplate.getForEntity(kafkaProxyURL+"/acls", AclVO[].class);
     return Arrays.asList(responseEntity.getBody());
   }
 
   @Override
-  public List<KafkaQuotaVO> getQuotas(String kafkaProxyURL, String kafkaProxyCookiePath) {
+  public List<KafkaQuotaVO> getQuotas(String kafkaProxyURL, String kafkaProxyCookie) {
     HttpHeaders headers= new HttpHeaders();
-    if(kafkaProxyCookiePath.length()!=0) {
-      // handle for APIC
-    }
     RestTemplate restTemplate= new RestTemplate();
+    if(kafkaProxyCookie.length()!=0) {
+      headers.add("Cookie", "KafkaProxy-cookie="+kafkaProxyCookie);
+      HttpEntity httpEntity= new HttpEntity(headers);
+      ResponseEntity<KafkaQuotaVO[]> responseEntity= restTemplate.exchange(kafkaProxyURL+"/quotas", HttpMethod.GET, httpEntity, KafkaQuotaVO[].class);
+      return Arrays.asList(responseEntity.getBody());
+    }
     ResponseEntity<KafkaQuotaVO[]> responseEntity= restTemplate.getForEntity(kafkaProxyURL+"/quotas", KafkaQuotaVO[].class);
     return Arrays.asList(responseEntity.getBody());
   }
