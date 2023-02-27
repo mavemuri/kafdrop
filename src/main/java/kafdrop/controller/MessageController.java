@@ -245,7 +245,7 @@ public final class MessageController {
       return ResponseEntity.badRequest().body("Maximum number for download is 10000- please reduce count or change offset".getBytes());
     }
     try {
-      List<MessageVO> messagesList= (List<MessageVO>) (Object)getPartitionOrMessages(topicName, partition, offset, count, format, keyFormat, descFile, msgTypeName);
+      List<MessageVO> messagesList= (List<MessageVO>) (Object)getPartitionOrMessages(topicName, partition, offset, count, format, keyFormat, descFile, msgTypeName, null);
       return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).
               header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=%1$s-%2$s-messages.json", topicName, partition)).body(messagesList.toString().getBytes());
     } catch (Exception e) {
