@@ -1,8 +1,5 @@
 package kafdrop.controller;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import kafdrop.model.KafkaQuotaVO;
 import kafdrop.service.KafkaMonitor;
 import org.slf4j.Logger;
@@ -14,6 +11,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -61,10 +62,10 @@ public class QuotaController {
         return "quota-overview";
     }
 
-    @ApiOperation(value = "getAllQuotas", notes = "Get list of all quotas")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = String.class, responseContainer = "List")
-    })
+    @Operation(description = "Get list of all quotas")
+    // @ApiResponses(value = {
+    //         @ApiResponse(statusCode = 200, message = "Success", response = String.class, responseContainer = "List")
+    // })
     @RequestMapping(path = "/quotas", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     public @ResponseBody
     List<KafkaQuotaVO> getAllQuotas() {

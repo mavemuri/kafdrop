@@ -37,7 +37,7 @@ public class KafdropTest extends AbstractIntegrationTest {
   @Test
   public void getReturnsExpectedGutHubStarText() throws Exception {
     ResponseEntity<String> responseEntity = restTemplate
-      .getForEntity("http://localhost:" + port + "/", String.class);
+      .getForEntity("http://localhost:" + port + "/overview", String.class);
     assertEquals(OK, responseEntity.getStatusCode());
     assertThat(responseEntity.getBody().contains("Star Kafdrop on GitHub"));
   }
